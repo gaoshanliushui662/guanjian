@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,6 +24,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.guanjian.mm.wxapi.WXPayEntryActivity"
+            android:exported="true"
+            android:launchMode="singleTop" >
         </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"

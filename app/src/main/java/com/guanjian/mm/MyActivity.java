@@ -17,11 +17,19 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.tencent.mm.sdk.constants.ConstantsAPI;
+import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.tencent.mm.sdk.modelpay.PayReq;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
 public class MyActivity extends Activity {
     public static final String TAG = "MainActivity";
@@ -40,10 +48,30 @@ public class MyActivity extends Activity {
     private void initView() {
         mWebView = (WebView) findViewById(R.id.webView1);
         mWebView.setWebChromeClient(new MyWebChromeClient());
-
+        WebSettings settings = mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new MyWebViewClient(this));
-//    webView.loadUrl("file:///android_asset/upload_image.html");
         mWebView.loadUrl("http://www.zhonghaonan.com/");
+    }
+
+    /**
+     * 调用微信支付接口
+     * @param params
+     */
+    @JavascriptInterface
+    public void callWeinXinPay(String params){
+        final IWXAPI msgApi = WXAPIFactory.createWXAPI(this, null);
+        // 将该app注册到微信
+        msgApi.registerApp("wxdb8bcc7ce0a3b51c");
+        PayReq request = new PayReq();
+        request.appId = "wxdb8bcc7ce0a3b51c";
+        request.partnerId = "1900000109";
+        request.prepayId= "1101000000140415649af9fc314aa427";
+        request.packageValue = "Sign=WXPay";
+        request.nonceStr= "1101000000140429eb40476f8896f4c9";
+        request.timeStamp= "1398746574";
+        request.sign= "7FFECB600D7157C5AA49810D2D8F28BC2811827B";
+        msgApi.sendReq(request);
     }
 
 
