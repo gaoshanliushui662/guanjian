@@ -93,9 +93,9 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setJavaScriptEnabled(true);
 
-        btn1 = (Button) findViewById(R.id.btn1);
-        btn2 = (Button) findViewById(R.id.btn2);
-        iv_photo = (ImageView) findViewById(R.id.iv_photo);
+//        btn1 = (Button) findViewById(R.id.btn1);
+//        btn2 = (Button) findViewById(R.id.btn2);
+//        iv_photo = (ImageView) findViewById(R.id.iv_photo);
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override

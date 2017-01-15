@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.guanjian.mm"
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -27,4 +27,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile files('libs/libammsdk.jar')
+    compile files('src/main/jniLibs/txrtmpsdk.jar')
+    compile 'com.facebook.stetho:stetho:1.4.2'
 }

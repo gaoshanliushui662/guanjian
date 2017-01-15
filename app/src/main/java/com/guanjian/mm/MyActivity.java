@@ -1,9 +1,5 @@
 package com.guanjian.mm;
 
-import java.io.File;
-import java.io.IOException;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,13 +21,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.tencent.mm.sdk.constants.ConstantsAPI;
-import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.guanjian.mm.wxapi.BaseActivity;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.tencent.rtmp.TXLivePusher;
 
-public class MyActivity extends Activity {
+import java.io.File;
+
+public class MyActivity extends BaseActivity {
     public static final String TAG = "MainActivity";
     ValueCallback<Uri> mUploadMessage;
     ValueCallback<Uri[]> mFilePathCallback;
@@ -43,15 +41,51 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        int[] sdkver = TXLivePusher.getSDKVersion();
+        if (sdkver != null && sdkver.length >= 3) {
+            Log.e("rtmpsdk","rtmp sdk version is:" + sdkver[0] + "." + sdkver[1] + "." + sdkver[2]);
+        }
     }
 
     private void initView() {
         mWebView = (WebView) findViewById(R.id.webView1);
-        mWebView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.getSettings().setJavaScriptEnabled(true);
         WebSettings settings = mWebView.getSettings();
+//        settings.setUseWideViewPort(true);
+//        settings.setLoadWithOverviewMode(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setJavaScriptEnabled(true);
+        settings.setSavePassword(true);
+        settings.setSaveFormData(true);
+        /***打开本地缓存提供JS调用**/
+        mWebView.getSettings().setDomStorageEnabled(true);
+        // Set cache size to 8 mb by default. should be more than enough
+        mWebView.getSettings().setAppCacheMaxSize(1024*1024*8);
+        // This next one is crazy. It's the DEFAULT location for your app's cache
+        // But it didn't work for me without this line.
+        // UPDATE: no hardcoded path. Thanks to Kevin Hawkins
+        String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
+        mWebView.getSettings().setAppCachePath(appCachePath);
+        mWebView.getSettings().setAllowFileAccess(true);
+        mWebView.getSettings().setAppCacheEnabled(true);
+        mWebView.addJavascriptInterface(MyActivity.this, "android");
         mWebView.setWebViewClient(new MyWebViewClient(this));
+        mWebView.setWebChromeClient(new MyWebChromeClient());
         mWebView.loadUrl("http://www.zhonghaonan.com/");
+//        mWebView.loadUrl("https://app.cv-china.com");
+
+    }
+
+    @JavascriptInterface
+    public void startZhiBo(final String rtmpUrl){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(MyActivity.this,ZhiBoActivity.class);
+                intent.putExtra("rtmpUrl",rtmpUrl);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -78,6 +112,12 @@ public class MyActivity extends Activity {
     private class MyWebViewClient extends WebViewClient {
         private Context mContext;
 
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
+
         public MyWebViewClient(Context context) {
             super();
             mContext = context;
@@ -102,12 +142,28 @@ public class MyActivity extends Activity {
 
     private class MyWebChromeClient extends WebChromeClient {
 
+/*        @Override
+        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+            return super.onJsAlert(view, url, message, result);
+        }*/
+
         public boolean onShowFileChooser(
                 WebView webView, ValueCallback<Uri[]> filePathCallback,
                 WebChromeClient.FileChooserParams fileChooserParams) {
             if (mFilePathCallback != null) return true;
             mFilePathCallback = filePathCallback;
-            selectImage();
+
+            requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
+                @Override
+                public void onPermissionGranted() {
+                    selectImage();
+                }
+
+                @Override
+                public void onPermissionDenied() {
+                    Toast.makeText(MyActivity.this, "拒绝申请权限", Toast.LENGTH_LONG).show();
+                }
+            });
             return true;
         }
 
@@ -115,7 +171,17 @@ public class MyActivity extends Activity {
         public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
             if (mUploadMessage != null) return;
             mUploadMessage = uploadMsg;
-            selectImage();
+            requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
+                @Override
+                public void onPermissionGranted() {
+                    selectImage();
+                }
+
+                @Override
+                public void onPermissionDenied() {
+                    Toast.makeText(MyActivity.this, "拒绝申请权限", Toast.LENGTH_LONG).show();
+                }
+            });
 //               Intent i = new Intent(Intent.ACTION_GET_CONTENT);
 //               i.addCategory(Intent.CATEGORY_OPENABLE);
 //               i.setType("*/*");
