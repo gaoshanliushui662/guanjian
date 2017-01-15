@@ -99,8 +99,8 @@ public class MyActivity extends BaseActivity {
         mWebView.setVerticalScrollBarEnabled(false);
         mWebView.getSettings().setAllowFileAccess(true);
         mWebView.setWebViewClient(new MyWebViewClient(this));
-//        mWebView.setWebChromeClient(new MyWebChromeClient());
-        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.setWebChromeClient(new MyWebChromeClient());
+//        mWebView.setWebChromeClient(new WebChromeClient());
 //        mWebView.loadUrl("http://www.zhonghaonan.com/");
         mWebView.loadUrl("https://app.cv-china.com");
 
