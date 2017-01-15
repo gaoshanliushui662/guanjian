@@ -13,9 +13,16 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,11 +42,16 @@ public class MyActivity extends BaseActivity {
     ValueCallback<Uri[]> mFilePathCallback;
     private WebView mWebView;
     private Boolean isAlbum;//是否打开相册
+    private long clickTime = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (!NetWorkUtils.isNetworkConnected(this)){
+            Toast.makeText(this, "网络异常,请检查网络状况", Toast.LENGTH_LONG).show();
+            return;
+        }
         initView();
         int[] sdkver = TXLivePusher.getSDKVersion();
         if (sdkver != null && sdkver.length >= 3) {
@@ -51,8 +63,9 @@ public class MyActivity extends BaseActivity {
         mWebView = (WebView) findViewById(R.id.webView1);
         mWebView.getSettings().setJavaScriptEnabled(true);
         WebSettings settings = mWebView.getSettings();
-//        settings.setUseWideViewPort(true);
-//        settings.setLoadWithOverviewMode(true);
+
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setJavaScriptEnabled(true);
         settings.setSavePassword(true);
@@ -65,14 +78,31 @@ public class MyActivity extends BaseActivity {
         // But it didn't work for me without this line.
         // UPDATE: no hardcoded path. Thanks to Kevin Hawkins
         String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
-        mWebView.getSettings().setAppCachePath(appCachePath);
-        mWebView.getSettings().setAllowFileAccess(true);
-        mWebView.getSettings().setAppCacheEnabled(true);
+        settings.setAppCachePath(appCachePath);
+        settings.setAllowFileAccess(true);
+        settings.setAppCacheEnabled(true);
         mWebView.addJavascriptInterface(MyActivity.this, "android");
+        settings.setBuiltInZoomControls(true);
+        settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSavePassword(true);
+        settings.setSaveFormData(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        mWebView.clearHistory();
+        mWebView.clearFormData();
+        mWebView.clearCache(true);
+
+        mWebView.requestFocusFromTouch();
+        mWebView.setHorizontalScrollBarEnabled(false);
+        mWebView.setVerticalScrollBarEnabled(false);
+        mWebView.getSettings().setAllowFileAccess(true);
         mWebView.setWebViewClient(new MyWebViewClient(this));
-        mWebView.setWebChromeClient(new MyWebChromeClient());
-        mWebView.loadUrl("http://www.zhonghaonan.com/");
-//        mWebView.loadUrl("https://app.cv-china.com");
+//        mWebView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.setWebChromeClient(new WebChromeClient());
+//        mWebView.loadUrl("http://www.zhonghaonan.com/");
+        mWebView.loadUrl("https://app.cv-china.com");
 
     }
 
@@ -126,13 +156,31 @@ public class MyActivity extends BaseActivity {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d(TAG, "URL地址:" + url);
+            view.getSettings().setJavaScriptEnabled(true);
             super.onPageStarted(view, url, favicon);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             Log.i(TAG, "onPageFinished");
+
+            view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
+            CookieManager cm = CookieManager.getInstance();
+            String cookie = cm.getCookie(url);
+            cm.setAcceptCookie(true);
+            cm.setCookie(url, cookie);
+            CookieSyncManager.getInstance().sync();
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            return super.shouldInterceptRequest(view, url);
         }
     }
 
@@ -142,10 +190,54 @@ public class MyActivity extends BaseActivity {
 
     private class MyWebChromeClient extends WebChromeClient {
 
-/*        @Override
-        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            return super.onJsAlert(view, url, message, result);
-        }*/
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message,
+                                 final JsResult result) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setMessage(message)
+                    .setNeutralButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            arg0.dismiss();
+                        }
+                    }).show();
+            result.cancel();
+            return true;
+        }
+
+        @Override
+        public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+            new AlertDialog.Builder(MyActivity.this)
+                    .setTitle("App Titler")
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener()
+                            {
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    result.confirm();
+                                }
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            new DialogInterface.OnClickListener()
+                            {
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    result.cancel();
+                                }
+                            })
+                    .create()
+                    .show();
+
+            return true;
+        }
+
+        @Override
+        public boolean onJsPrompt(WebView view, String url, String message,
+                                  String defaultValue, JsPromptResult result) {
+            // TODO Auto-generated method stub
+            return super.onJsPrompt(view, url, message, defaultValue, result);
+        }
 
         public boolean onShowFileChooser(
                 WebView webView, ValueCallback<Uri[]> filePathCallback,
@@ -389,6 +481,40 @@ public class MyActivity extends BaseActivity {
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        String url = mWebView.getUrl();
+        if ("".equals(url)){
+            if (System.currentTimeMillis() - clickTime > 2000L){
+                Toast.makeText(getApplicationContext(), "再按一次后退键退出程序", Toast.LENGTH_SHORT).show();
+                this.clickTime = System.currentTimeMillis();
+                return true;
+            }
+            finish();
+            return true;
+        }
+        if (!mWebView.canGoBack())
+        {
+            if (System.currentTimeMillis() - this.clickTime > 2000L)
+            {
+                Toast.makeText(getApplicationContext(), "再按一次后退键退出程序", Toast.LENGTH_SHORT).show();
+                clickTime = System.currentTimeMillis();
+                return true;
+            }
+            finish();
+            return true;
+        }
+        if ("https://app.cv-china.com/Mall".equals(url) || "https://app.cv-china.com/Chaguan".equals(url) || "https://app.cv-china.com/Mall/home".equals(url))
+        {
+            if (System.currentTimeMillis() - this.clickTime > 2000L)
+            {
+                Toast.makeText(getApplicationContext(), "再按一次后退键退出程序", Toast.LENGTH_SHORT).show();
+                this.clickTime = System.currentTimeMillis();
+                return true;
+            }
+            finish();
+            return true;
+        }
+
         if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
             mWebView.goBack();
             return true;
