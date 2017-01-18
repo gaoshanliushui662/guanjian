@@ -61,6 +61,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             add(Manifest.permission.CAPTURE_VIDEO_OUTPUT);
             add(Manifest.permission.MODIFY_AUDIO_SETTINGS);
             add(Manifest.permission.WRITE_SETTINGS);
+            add(Manifest.permission.RESTART_PACKAGES);
         }
     };
 
@@ -127,7 +128,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      *
      * @param permissions
      */
-    private void requestEachPermissions(String[] permissions) {
+    protected void requestEachPermissions(String[] permissions) {
         if (shouldShowRequestPermissionRationale(permissions)) {// 需要再次声明
             showRationaleDialog(permissions);
         } else {

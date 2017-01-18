@@ -32,7 +32,7 @@ public class ZhiBoActivity extends BaseActivity {
         setContentView(R.layout.zhibo);
         Intent intent = getIntent();
         rtmpUrl = intent.getStringExtra("rtmpUrl");
-        requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
+        /*requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
             @Override
             public void onPermissionGranted() {
                 initView();
@@ -43,7 +43,9 @@ public class ZhiBoActivity extends BaseActivity {
             public void onPermissionDenied() {
                 Toast.makeText(ZhiBoActivity.this, "拒绝申请权限", Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
+        initView();
+        initZhiBo();
     }
 
     private void initZhiBo() {

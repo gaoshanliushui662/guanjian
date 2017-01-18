@@ -62,7 +62,6 @@ public class AppUtils {
             startMain.addCategory(Intent.CATEGORY_HOME);
             startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(startMain);
-            System.exit(0);
         } else {// android2.1
             ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
             am.restartPackage(context.getPackageName());
