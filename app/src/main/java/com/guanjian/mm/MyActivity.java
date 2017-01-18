@@ -124,17 +124,19 @@ public class MyActivity extends BaseActivity {
      */
     @JavascriptInterface
     public void callWeinXinPay(String params){
+
+        String[] arr = params.split(",");
         final IWXAPI msgApi = WXAPIFactory.createWXAPI(this, null);
         // 将该app注册到微信
-        msgApi.registerApp("wxdb8bcc7ce0a3b51c");
+        msgApi.registerApp(arr[0]);
         PayReq request = new PayReq();
-        request.appId = "wxdb8bcc7ce0a3b51c";
-        request.partnerId = "1900000109";
-        request.prepayId= "1101000000140415649af9fc314aa427";
-        request.packageValue = "Sign=WXPay";
-        request.nonceStr= "1101000000140429eb40476f8896f4c9";
-        request.timeStamp= "1398746574";
-        request.sign= "7FFECB600D7157C5AA49810D2D8F28BC2811827B";
+        request.appId = "arr[0]";
+        request.partnerId = "arr[3]";
+        request.prepayId= "arr[4]";
+        request.packageValue = "arr[2]";
+        request.nonceStr= "arr[1]";
+        request.timeStamp= "arr[5]";
+        request.sign= "arr[6]";
         msgApi.sendReq(request);
     }
 
@@ -313,7 +315,7 @@ public class MyActivity extends BaseActivity {
     protected final void selectImage() {
         if (!checkSDcard())
             return;
-        String[] selectPicTypeStr = {"camera", "photo"};
+        String[] selectPicTypeStr = {"拍照", "从相册选择"};
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setItems(selectPicTypeStr,
                         new DialogInterface.OnClickListener() {
