@@ -245,7 +245,7 @@ public class MyActivity extends BaseActivity {
             if (mFilePathCallback != null) return true;
             mFilePathCallback = filePathCallback;
 
-            requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
+            /*requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
                 @Override
                 public void onPermissionGranted() {
                     selectImage();
@@ -255,7 +255,8 @@ public class MyActivity extends BaseActivity {
                 public void onPermissionDenied() {
                     Toast.makeText(MyActivity.this, "拒绝申请权限", Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
+            selectImage();
             return true;
         }
 
@@ -263,7 +264,7 @@ public class MyActivity extends BaseActivity {
         public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
             if (mUploadMessage != null) return;
             mUploadMessage = uploadMsg;
-            requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
+            /*requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
                 @Override
                 public void onPermissionGranted() {
                     selectImage();
@@ -273,7 +274,8 @@ public class MyActivity extends BaseActivity {
                 public void onPermissionDenied() {
                     Toast.makeText(MyActivity.this, "拒绝申请权限", Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
+            selectImage();
 //               Intent i = new Intent(Intent.ACTION_GET_CONTENT);
 //               i.addCategory(Intent.CATEGORY_OPENABLE);
 //               i.setType("*/*");
