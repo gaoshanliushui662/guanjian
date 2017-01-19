@@ -3,9 +3,13 @@ package com.guanjian.mm;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.guanjian.mm.wxapi.BaseActivity;
 import com.tencent.rtmp.TXLivePushConfig;
@@ -25,6 +29,8 @@ public class ZhiBoActivity extends BaseActivity {
     private TXLivePushConfig mLivePushConfig;
     private TXCloudVideoView mCaptureView;
     private String rtmpUrl;
+    private String href;
+    private WebView mWebView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,8 @@ public class ZhiBoActivity extends BaseActivity {
         setContentView(R.layout.zhibo);
         Intent intent = getIntent();
         rtmpUrl = intent.getStringExtra("rtmpUrl");
+        href = intent.getStringExtra("href");
+        Log.e("href",href);
         /*requestPermission(FORCE_REQUIRE_PERMISSIONS, true, new PermissionsResultListener() {
             @Override
             public void onPermissionGranted() {
@@ -46,6 +54,56 @@ public class ZhiBoActivity extends BaseActivity {
         });*/
         initView();
         initZhiBo();
+        initWebView();
+    }
+
+    private void initWebView() {
+        mWebView = (WebView) findViewById(R.id.webView);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        WebSettings settings = mWebView.getSettings();
+
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setSavePassword(true);
+        settings.setSaveFormData(true);
+        /***打开本地缓存提供JS调用**/
+        mWebView.getSettings().setDomStorageEnabled(true);
+        // Set cache size to 8 mb by default. should be more than enough
+        mWebView.getSettings().setAppCacheMaxSize(1024*1024*8);
+        // This next one is crazy. It's the DEFAULT location for your app's cache
+        // But it didn't work for me without this line.
+        // UPDATE: no hardcoded path. Thanks to Kevin Hawkins
+        String appCachePath = getApplicationContext().getCacheDir().getAbsolutePath();
+        settings.setAppCachePath(appCachePath);
+        settings.setAllowFileAccess(true);
+        settings.setAppCacheEnabled(true);
+//        mWebView.addJavascriptInterface(ZhiBoActivity.this, "android");
+        settings.setBuiltInZoomControls(true);
+        settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSavePassword(true);
+        settings.setSaveFormData(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        mWebView.clearHistory();
+        mWebView.clearFormData();
+        mWebView.clearCache(true);
+
+        mWebView.requestFocusFromTouch();
+        mWebView.setHorizontalScrollBarEnabled(false);
+        mWebView.setVerticalScrollBarEnabled(false);
+        mWebView.getSettings().setAllowFileAccess(true);
+        mWebView.setWebViewClient(new WebViewClient(){
+            public boolean shouldOverrideUrlLoading(WebView view, String url){
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.loadUrl(href);
     }
 
     private void initZhiBo() {
@@ -62,6 +120,7 @@ public class ZhiBoActivity extends BaseActivity {
         btn_switch = (Button) findViewById(R.id.btn_switch);
         btn_stop = (Button) findViewById(R.id.btn_stop);
         mCaptureView = (TXCloudVideoView) findViewById(R.id.video_view);
+
 
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override

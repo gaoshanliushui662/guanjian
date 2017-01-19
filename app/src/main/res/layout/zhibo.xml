@@ -2,6 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/zhibo"
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
     <com.tencent.rtmp.ui.TXCloudVideoView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
@@ -35,5 +39,10 @@
             android:textSize="16sp"
             android:textColor="#000000"/>
     </LinearLayout>
-
+    </RelativeLayout>
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/zhibo"></WebView>
 </RelativeLayout>

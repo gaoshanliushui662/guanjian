@@ -107,12 +107,13 @@ public class MyActivity extends BaseActivity {
     }
 
     @JavascriptInterface
-    public void startZhiBo(final String rtmpUrl){
+    public void startZhiBo(final String rtmpUrl, final String href){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(MyActivity.this,ZhiBoActivity.class);
                 intent.putExtra("rtmpUrl",rtmpUrl);
+                intent.putExtra("href",href);
                 startActivity(intent);
             }
         });
