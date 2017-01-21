@@ -125,19 +125,20 @@ public class MyActivity extends BaseActivity {
      */
     @JavascriptInterface
     public void callWeinXinPay(String params){
-
+        Log.e("zys",params);
         String[] arr = params.split(",");
+        Log.e("zys",arr.toString());
         final IWXAPI msgApi = WXAPIFactory.createWXAPI(this, null);
         // 将该app注册到微信
         msgApi.registerApp(arr[0]);
         PayReq request = new PayReq();
-        request.appId = "arr[0]";
-        request.partnerId = "arr[3]";
-        request.prepayId= "arr[4]";
-        request.packageValue = "arr[2]";
-        request.nonceStr= "arr[1]";
-        request.timeStamp= "arr[5]";
-        request.sign= "arr[6]";
+        request.appId = arr[0];
+        request.partnerId = arr[3];
+        request.prepayId= arr[4];
+        request.packageValue = arr[2];
+        request.nonceStr= arr[1];
+        request.timeStamp= arr[5];
+        request.sign= arr[6];
         msgApi.sendReq(request);
     }
 
