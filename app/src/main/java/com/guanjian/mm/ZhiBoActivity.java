@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -24,7 +25,7 @@ public class ZhiBoActivity extends BaseActivity {
 
     private Button btn_start;
     private Button btn_switch;
-    private Button btn_stop;
+//    private Button btn_stop;
     private TXLivePusher mLivePusher;
     private TXLivePushConfig mLivePushConfig;
     private TXCloudVideoView mCaptureView;
@@ -79,7 +80,7 @@ public class ZhiBoActivity extends BaseActivity {
         settings.setAppCachePath(appCachePath);
         settings.setAllowFileAccess(true);
         settings.setAppCacheEnabled(true);
-//        mWebView.addJavascriptInterface(ZhiBoActivity.this, "android");
+        mWebView.addJavascriptInterface(ZhiBoActivity.this, "android");
         settings.setBuiltInZoomControls(true);
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         settings.setUseWideViewPort(true);
@@ -106,6 +107,17 @@ public class ZhiBoActivity extends BaseActivity {
         mWebView.loadUrl(href);
     }
 
+    @JavascriptInterface
+    public void stopZhiBo(String url){
+        mLivePusher.stopCameraPreview(true); //停止摄像头预览
+        mLivePusher.stopPusher();            //停止推流
+        mLivePusher.setPushListener(null);   //解绑 listener
+        Intent intent = new Intent(this, StopZhiBoActivity.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
+        finish();
+    }
+
     private void initZhiBo() {
         mLivePusher = new TXLivePusher(this);
         mLivePushConfig = new TXLivePushConfig();
@@ -118,7 +130,7 @@ public class ZhiBoActivity extends BaseActivity {
     private void initView() {
         btn_start = (Button) findViewById(R.id.btn_start);
         btn_switch = (Button) findViewById(R.id.btn_switch);
-        btn_stop = (Button) findViewById(R.id.btn_stop);
+//        btn_stop = (Button) findViewById(btn_stop);
         mCaptureView = (TXCloudVideoView) findViewById(R.id.video_view);
 
 
@@ -139,13 +151,13 @@ public class ZhiBoActivity extends BaseActivity {
             }
         });
 
-        btn_stop.setOnClickListener(new View.OnClickListener() {
+/*        btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLivePusher.stopCameraPreview(true); //停止摄像头预览
                 mLivePusher.stopPusher();            //停止推流
                 mLivePusher.setPushListener(null);   //解绑 listener
             }
-        });
+        });*/
     }
 }
