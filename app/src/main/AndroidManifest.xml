@@ -57,6 +57,9 @@
         <activity android:name=".ZhiBoActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
+        <activity android:name=".StopZhiBoActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+        </activity>
         <activity
             android:name="com.guanjian.mm.wxapi.WXPayEntryActivity"
             android:exported="true"

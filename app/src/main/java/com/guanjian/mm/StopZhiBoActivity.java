@@ -3,6 +3,7 @@ package com.guanjian.mm;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -20,7 +21,7 @@ public class StopZhiBoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.zhibo);
+        setContentView(R.layout.stop_zhibo);
         getData();
         initWebView();
     }
@@ -47,7 +48,7 @@ public class StopZhiBoActivity extends Activity {
         settings.setAppCachePath(appCachePath);
         settings.setAllowFileAccess(true);
         settings.setAppCacheEnabled(true);
-//        mWebView.addJavascriptInterface(ZhiBoActivity.this, "android");
+        mWebView.addJavascriptInterface(StopZhiBoActivity.this, "android");
         settings.setBuiltInZoomControls(true);
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         settings.setUseWideViewPort(true);
@@ -77,6 +78,17 @@ public class StopZhiBoActivity extends Activity {
     private void getData() {
         Intent intent = getIntent();
         url = intent.getStringExtra("url");
+    }
+
+    @JavascriptInterface
+    public void confirm(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        });
+
     }
 
 

@@ -108,14 +108,20 @@ public class ZhiBoActivity extends BaseActivity {
     }
 
     @JavascriptInterface
-    public void stopZhiBo(String url){
-        mLivePusher.stopCameraPreview(true); //停止摄像头预览
-        mLivePusher.stopPusher();            //停止推流
-        mLivePusher.setPushListener(null);   //解绑 listener
-        Intent intent = new Intent(this, StopZhiBoActivity.class);
-        intent.putExtra("url", url);
-        startActivity(intent);
-        finish();
+    public void stopZhiBo(final String url){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLivePusher.stopCameraPreview(true); //停止摄像头预览
+                mLivePusher.stopPusher();            //停止推流
+                mLivePusher.setPushListener(null);   //解绑 listener
+                Intent intent = new Intent(ZhiBoActivity.this, StopZhiBoActivity.class);
+                intent.putExtra("url", url);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 
     private void initZhiBo() {

@@ -45,6 +45,11 @@ public class MyActivity extends BaseActivity {
     private long clickTime = 0L;
 
     @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
